@@ -5,8 +5,9 @@ from rest_framework.authentication import BasicAuthentication
 from rest_framework.authtoken.views import ObtainAuthToken
 from rest_framework.response import Response
 from rest_framework.views import APIView
-from usuarios.permissions import UserGroupVerify
+from usuarios.permissions import IsClient
 from usuarios.serializers import UserCreateSerializer, UserSerializer
+from usuarios.utils import UserGroupVerify
 
 
 class UserAuthToken(ObtainAuthToken):
@@ -14,10 +15,10 @@ class UserAuthToken(ObtainAuthToken):
 
 
 class UserList(APIView):
-
-    # API Endpoint - listagem e criacao de usuarios
-    # User Cliente nao tem acesso a listagem completa e criacao de outros usuarios
-
+    """
+    API Endpoint - listagem e criacao de usuarios.\n
+    Cliente sem permissao a listagem completa e criacao de usuarios.
+    """
     permission_classes = [permissions.IsAuthenticated]
 
     def get(self, request):
@@ -40,8 +41,11 @@ class UserList(APIView):
 
 
 class UserDetail(APIView):
-
-    permission_classes = [permissions.IsAuthenticated]
+    """
+    API Endpoint - GET/PUT/DELETE usuario especifico.\n
+    Cliente sem permissao para manipular outros usuarios.
+    """
+    permission_classes = [permissions.IsAuthenticated, IsClient]
 
     def get_user(self, username):
         try:
