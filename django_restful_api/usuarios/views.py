@@ -1,22 +1,38 @@
 from django.contrib.auth.models import User
 from django.http import Http404
 from rest_framework import permissions, status
+from rest_framework.authentication import BasicAuthentication
+from rest_framework.authtoken.views import ObtainAuthToken
 from rest_framework.response import Response
 from rest_framework.views import APIView
-from usuarios.serializers import UserSerializer
+from usuarios.permissions import UserGroupVerify
+from usuarios.serializers import UserCreateSerializer, UserSerializer
+
+
+class UserAuthToken(ObtainAuthToken):
+    authentication_classes = [BasicAuthentication]
 
 
 class UserList(APIView):
 
-    permission_classes = [permissions.IsAuthenticatedOrReadOnly]
+    # API Endpoint - listagem e criacao de usuarios
+    # User Cliente nao tem acesso a listagem completa e criacao de outros usuarios
+
+    permission_classes = [permissions.IsAuthenticated]
 
     def get(self, request):
-        usuarios = User.objects.all()
-        serializer = UserSerializer(usuarios, many=True)
+        if UserGroupVerify.is_cliente(request.user):
+            serializer = UserSerializer(request.user)
+        else:
+            query_set = User.objects.all()
+            serializer = UserSerializer(query_set, many=True)
         return Response(serializer.data)
 
     def post(self, request):
-        serializer = UserSerializer(data=request.data)
+        if UserGroupVerify.is_cliente(request.user):
+            return Response("Não possui permissão.", status=status.HTTP_401_UNAUTHORIZED)
+        
+        serializer = UserCreateSerializer(data=request.data)
         if serializer.is_valid():
             serializer.save()
             return Response(serializer.data, status=status.HTTP_201_CREATED)
@@ -25,7 +41,7 @@ class UserList(APIView):
 
 class UserDetail(APIView):
 
-    permission_classes = [permissions.IsAuthenticatedOrReadOnly]
+    permission_classes = [permissions.IsAuthenticated]
 
     def get_user(self, username):
         try:
@@ -40,7 +56,7 @@ class UserDetail(APIView):
 
     def put(self, request, username):
         usuario = self.get_user(username)
-        serializer = UserSerializer(usuario, data=request.data)
+        serializer = UserCreateSerializer(usuario, data=request.data)
         if serializer.is_valid():
             serializer.save()
             return Response(serializer.data)
