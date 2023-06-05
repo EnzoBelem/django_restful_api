@@ -12,10 +12,13 @@ class GroupsPermissionsForUserManipulation(permissions.BasePermission):
     """
     message = 'Você não possui permissão.'
 
+    def _get_user_by_kwargs(self, request):
+        username = request.resolver_match.kwargs.get('username', None)
+        return User.objects.filter(username=username).first()
+
     def has_permission(self, request, view):
         if request.user.groups.filter(name='Cliente').exists():
-            username = request.resolver_match.kwargs.get('username', None)
-            user = User.objects.filter(username=username).first()
+            user = self._get_user_by_kwargs(request)
 
             if user and user == request.user:
                 return True
@@ -25,8 +28,7 @@ class GroupsPermissionsForUserManipulation(permissions.BasePermission):
             if request.method in permissions.SAFE_METHODS:
                 return True
             
-            username = request.resolver_match.kwargs.get('username', None)
-            user = User.objects.filter(username=username).first()
+            user = self._get_user_by_kwargs(request)
 
             if user and user.groups.filter(name='Cliente').exists():
                 return True

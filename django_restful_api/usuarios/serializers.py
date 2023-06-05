@@ -13,12 +13,15 @@ class UserSerializer(serializers.ModelSerializer):
     
     class Meta:
         model = User
-        fields = ['id', 'username', 'email', 'groups']
+        fields = ['id', 'username', 'password', 'first_name', 'last_name', 'email', 'group']
 
 
 class UserCreateSerializer(serializers.ModelSerializer):
-    password = serializers.CharField(write_only=True)
-    group = serializers.CharField(write_only=True)
+    password = serializers.CharField(write_only=True, required=True)
+    group = serializers.CharField(write_only=True, required=True)
+    email = serializers.CharField(required= True)
+    first_name = serializers.CharField(required= True)
+    last_name = serializers.CharField(required= True)
 
     def validate_group(self, group_name):
         group = Group.objects.filter(name=group_name)
@@ -36,13 +39,14 @@ class UserCreateSerializer(serializers.ModelSerializer):
             password=validated_data['password'],
             email=validated_data['email'],
             first_name=validated_data['first_name'],
+            last_name=validated_data['last_name'],
         )
         user.groups.set(groups_data)
         return user
 
     class Meta:
         model = User
-        fields = ['id', 'username', 'password', 'first_name', 'email', 'group']
+        fields = ['id', 'username', 'password', 'first_name', 'last_name', 'email', 'group']
 
 
 class UserUpdateSerializer(serializers.ModelSerializer):
