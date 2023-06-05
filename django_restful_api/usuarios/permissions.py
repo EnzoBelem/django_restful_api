@@ -6,8 +6,8 @@ from rest_framework import permissions
 class GroupsPermissionsForUserManipulation(permissions.BasePermission):
     """
     Permite acesso dado o grupo do usuario.\n
-    * Clientes: permissao de acesso/manipulacao a seus proprios dados.\n
-    * Funcionários: acesso livre, manipulacao somente a dados de Clientes.\n
+    * Cliente: permissao de acesso/manipulacao a seus proprios dados.\n
+    * Funcionário: acesso livre, manipulacao somente a dados de Clientes.\n
     * Gerência: acesso/manipulacao livre.
     """
     message = 'Você não possui permissão.'
@@ -23,7 +23,7 @@ class GroupsPermissionsForUserManipulation(permissions.BasePermission):
             if user and user == request.user:
                 return True
             
-        elif request.user.groups.filter(Q(name='Funcionário')).exists():
+        elif request.user.groups.filter(name='Funcionário').exists():
 
             if request.method in permissions.SAFE_METHODS:
                 return True
@@ -33,7 +33,7 @@ class GroupsPermissionsForUserManipulation(permissions.BasePermission):
             if user and user.groups.filter(name='Cliente').exists():
                 return True
             
-        elif request.user.groups.filter(Q(name='Gerência')).exists():
+        elif request.user.groups.filter(name='Gerência').exists():
             return True
         
         return False

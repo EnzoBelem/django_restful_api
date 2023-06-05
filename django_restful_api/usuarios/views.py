@@ -43,9 +43,14 @@ class UserGeneral(APIView):
 
     def post(self, request):
         """
-        POST - criacao de usuario (Cliente sem permissao).
+        POST - criacao de usuario.
+        * Cliente: sem permissao.
+        * Funcionário: criar unicamente Clientes.
         """
         if UserGroupVerify.is_cliente(request.user):
+            return Response("Não possui permissão.", status=status.HTTP_401_UNAUTHORIZED)
+        elif UserGroupVerify.is_funcionario(request.user):
+           if not request.data.get('group') == 'Cliente':
             return Response("Não possui permissão.", status=status.HTTP_401_UNAUTHORIZED)
         
         serializer = UserCreateSerializer(data=request.data)
