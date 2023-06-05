@@ -1,23 +1,29 @@
 from django.contrib.auth.models import User
 from django.http import Http404
 from rest_framework import permissions, status
-from rest_framework.authentication import BasicAuthentication
+from rest_framework.authtoken.models import Token
 from rest_framework.authtoken.views import ObtainAuthToken
 from rest_framework.response import Response
 from rest_framework.views import APIView
 from usuarios.permissions import IsClient
-from usuarios.serializers import UserCreateSerializer, UserSerializer
+from usuarios.serializers import (UserCreateSerializer, UserSerializer,
+                                  UserUpdateSerializer)
 from usuarios.utils import UserGroupVerify
 
 
 class UserAuthToken(ObtainAuthToken):
-    authentication_classes = [BasicAuthentication]
+    def post(self, request):
+        serializer = self.serializer_class(data= request.data)
+        serializer.is_valid(raise_exception=True)
+        usuario = serializer.validated_data['user']
+        token, created = Token.objects.get_or_create(user=usuario)
+        return Response({'token': token.key})
 
 
-class UserList(APIView):
+class UserGeneral(APIView):
     """
     API Endpoint - listagem e criacao de usuarios.\n
-    Cliente sem permissao a listagem completa e criacao de usuarios.
+    Cliente sem permissao: listagem completa e criacao de usuarios.
     """
     permission_classes = [permissions.IsAuthenticated]
 
@@ -43,30 +49,30 @@ class UserList(APIView):
 class UserDetail(APIView):
     """
     API Endpoint - GET/PUT/DELETE usuario especifico.\n
-    Cliente sem permissao para manipular outros usuarios.
+    Cliente sem permissao: manipulacao de outros usuarios.
     """
     permission_classes = [permissions.IsAuthenticated, IsClient]
 
-    def get_user(self, username):
+    def _get_user(self, username):
         try:
             return User.objects.get(username=username)
         except User.DoesNotExist:
             raise Http404
 
     def get(self, request, username):
-        usuario = self.get_user(username)
+        usuario = self._get_user(username)
         serializer = UserSerializer(usuario)
         return Response(serializer.data)
 
-    def put(self, request, username):
-        usuario = self.get_user(username)
-        serializer = UserCreateSerializer(usuario, data=request.data)
+    def patch(self, request, username):
+        usuario = self._get_user(username)
+        serializer = UserUpdateSerializer(usuario, data=request.data)
         if serializer.is_valid():
             serializer.save()
             return Response(serializer.data)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
     def delete(self, request, username):
-        usuario = self.get_user(username)
+        usuario = self._get_user(username)
         usuario.delete()
         return Response(status=status.HTTP_204_NO_CONTENT)

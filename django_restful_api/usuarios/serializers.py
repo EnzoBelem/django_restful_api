@@ -21,20 +21,16 @@ class UserCreateSerializer(serializers.ModelSerializer):
     group = serializers.CharField(write_only=True)
 
     def validate_group(self, group_name):
-        try:
-            group = Group.objects.filter(name=group_name)
-            if not group.exists():
-                raise serializers.ValidationError("Este grupo não existe.")
-            return group
-        except:
+        group = Group.objects.filter(name=group_name)
+        if not group.exists():
             raise serializers.ValidationError("Este grupo não existe.")
-
+        return group
+        
     def create(self, validated_data):
         try:
             groups_data = validated_data['group']
         except serializers.ValidationError as e:
             raise serializers.ValidationError(e.detail)
-        
         user = User.objects.create_user(
             username=validated_data['username'],
             password=validated_data['password'],
@@ -47,3 +43,34 @@ class UserCreateSerializer(serializers.ModelSerializer):
     class Meta:
         model = User
         fields = ['id', 'username', 'password', 'first_name', 'email', 'group']
+
+
+class UserUpdateSerializer(serializers.ModelSerializer):
+    password = serializers.CharField(write_only=True, required=False)
+    username = serializers.CharField(required=False)
+
+    def validate_username(self, username):
+        if not self.instance.username == username:
+            if User.objects.filter(username=username).exists():
+                raise serializers.ValidationError("Este username não está disponivel.")
+        return username
+
+    def update(self, instance, validated_data):
+        try:
+            username = validated_data.get('username', instance.username)
+        except serializers.ValidationError as e:
+            raise serializers.ValidationError(e.detail)
+        password = validated_data.get('password')
+        if password:
+            instance.set_password(password)
+        instance.username = username
+        instance.first_name = validated_data.get('first_name', instance.first_name)
+        instance.email = validated_data.get('email', instance.email)
+        instance.save()
+        return instance
+
+    class Meta:
+        model = User
+        fields = ['id', 'username', 'password', 'first_name', 'email']
+        read_only_fields = ['id']
+        

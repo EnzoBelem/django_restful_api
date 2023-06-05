@@ -1,8 +1,8 @@
 from django.urls import path
-from usuarios.views import UserAuthToken, UserDetail, UserList
+from usuarios.views import UserAuthToken, UserDetail, UserGeneral
 
 urlpatterns = [
-    path('', UserList.as_view()),
-    path('<slug:username>/', UserDetail.as_view()),
+    path('', UserGeneral.as_view()),
     path('auth/', UserAuthToken.as_view()),
+    path('<str:username>/', UserDetail.as_view()),
 ]
