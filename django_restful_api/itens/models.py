@@ -6,7 +6,7 @@ class Item(models.Model):
     nome = models.CharField(max_length=75)
     descricao = models.TextField()
     preco = models.FloatField()
-    quantidade_estoque = models.IntegerField(default=0)
+    quantidade_estoque = models.PositiveIntegerField(default=0)
     
     def __str__(self):
         return self.nome
