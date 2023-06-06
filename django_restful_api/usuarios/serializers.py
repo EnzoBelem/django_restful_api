@@ -23,6 +23,10 @@ class UserCreateSerializer(serializers.ModelSerializer):
     first_name = serializers.CharField(required= True)
     last_name = serializers.CharField(required= True)
 
+    class Meta:
+        model = User
+        fields = ['id', 'username', 'password', 'first_name', 'last_name', 'email', 'group']
+
     def validate_group(self, group_name):
         group = Group.objects.filter(name=group_name)
         if not group.exists():
@@ -44,14 +48,15 @@ class UserCreateSerializer(serializers.ModelSerializer):
         user.groups.set(groups_data)
         return user
 
-    class Meta:
-        model = User
-        fields = ['id', 'username', 'password', 'first_name', 'last_name', 'email', 'group']
-
-
+    
 class UserUpdateSerializer(serializers.ModelSerializer):
     password = serializers.CharField(write_only=True, required=False)
     username = serializers.CharField(required=False)
+
+    class Meta:
+        model = User
+        fields = ['id', 'username', 'password', 'first_name', 'email']
+        read_only_fields = ['id']
 
     def validate_username(self, username):
         if not self.instance.username == username:
@@ -73,8 +78,4 @@ class UserUpdateSerializer(serializers.ModelSerializer):
         instance.save()
         return instance
 
-    class Meta:
-        model = User
-        fields = ['id', 'username', 'password', 'first_name', 'email']
-        read_only_fields = ['id']
-        
+         

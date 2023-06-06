@@ -38,4 +38,14 @@ class GroupsPermissionsForUserManipulation(permissions.BasePermission):
         
         return False
    
-   
+
+class GroupsPermissionForItemManipulation(permissions.BasePermission):
+
+    message = 'Essa operação não é permitida.'
+
+    def has_permission(self, request, view):
+        if  request.method in permissions.SAFE_METHODS or \
+            not request.user.groups.filter(name= 'Cliente'):
+            return True
+        return False
+
