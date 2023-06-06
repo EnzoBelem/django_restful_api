@@ -3,6 +3,5 @@ from usuarios.views import UserAuthToken, UserDetail, UserGeneral
 
 urlpatterns = [
     path('', UserGeneral.as_view()),
-    path('auth/', UserAuthToken.as_view()),
     path('<str:username>/', UserDetail.as_view()),
 ]
