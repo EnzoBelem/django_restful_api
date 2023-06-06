@@ -27,9 +27,15 @@ class ItemUpdateSerializer(serializers.ModelSerializer):
         fields = ['id', 'codigo_item', 'nome', 'descricao', 'preco', 'quantidade_estoque']
 
     def validate_codigo_item(self, codigo_item):
-        if Item.objects.filter(codigo_item=codigo_item).exists():
-            raise serializers.ValidationError("Este código de item não está disponivel.")
+        if not self.instance.codigo_item == codigo_item:
+            if Item.objects.filter(codigo_item=codigo_item).exists():
+                raise serializers.ValidationError("Este código de item não está disponivel.")
         return codigo_item
+    
+    def validate_quantidade_estoque(self, quant):
+        if not isinstance(quant, int) or quant < 0:
+            raise serializers.ValidationError("Valor fornecido para quantidade é inválido.")
+        return quant
 
     def update(self, instance, validated_data):
         try:
