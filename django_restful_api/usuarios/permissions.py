@@ -40,7 +40,9 @@ class GroupsPermissionsForUserManipulation(permissions.BasePermission):
    
 
 class GroupsPermissionForItemManipulation(permissions.BasePermission):
-
+    """
+    Clientes com permissao somente para leitura de dados.
+    """
     message = 'Essa operação não é permitida.'
 
     def has_permission(self, request, view):

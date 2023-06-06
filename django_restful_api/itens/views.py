@@ -9,7 +9,9 @@ from usuarios.permissions import GroupsPermissionForItemManipulation
 
 
 class ItemGeneral(APIView):
-
+    """
+    API Endpoint - Listagem/criação de itens.
+    """
     permission_classes = [permissions.IsAuthenticatedOrReadOnly, 
                           GroupsPermissionForItemManipulation]
 
@@ -18,6 +20,7 @@ class ItemGeneral(APIView):
         if request.user and not request.user.groups.filter(name='Cliente').exists():
             serializer = ItemSerializer(query_set, many=True)
         else:
+            # Usuarios nao autenticados ou com baixa permissao nao tem acesso a informacoes internas do item
             serializer = ItemResumeSerializer(query_set, many=True)
         return Response(serializer.data)
     
@@ -30,7 +33,9 @@ class ItemGeneral(APIView):
     
 
 class ItemDetail(APIView):
-
+    """
+    API Endpoint - GET/PATCH/DELETE item especifio via <str:codigo_item>.
+    """
     permission_classes = [permissions.IsAuthenticatedOrReadOnly,
                           GroupsPermissionForItemManipulation]
 
