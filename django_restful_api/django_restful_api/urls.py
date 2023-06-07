@@ -8,4 +8,5 @@ urlpatterns = [
     path('auth/', UserAuthToken.as_view()),
     path('usuarios/', include('usuarios.urls')),
     path('itens/', include('itens.urls')),
+    path('pedidos/', include('pedidos.urls')),
 ]
