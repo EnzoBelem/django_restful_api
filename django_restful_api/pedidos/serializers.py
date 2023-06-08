@@ -50,14 +50,27 @@ class PedidoSerializer(serializers.ModelSerializer):
             raise serializers.ValidationError(e.detail)
 
         pedido = Pedido.objects.create(usuario=usuario)
-        
+        flag_error = False
+        list_itens = []
+
         for item_data in itens_data:
             item = item_data.pop('item')
             quantidade = item_data.pop('quantidade')
-            ItemPedido.objects.create(pedido=pedido, item=item, quantidade=quantidade)
-        
-        return pedido
+            if item.quantidade_estoque >= quantidade:
+                item.quantidade_estoque -= quantidade
+                item.save()
+                ItemPedido.objects.create(pedido=pedido, item=item, quantidade=quantidade)
+            else:
+                flag_error = True
+                list_itens.append(item.nome)
+
+        if flag_error:
+            pedido.delete()
+            raise serializers.ValidationError(f"Item/Itens: {', '.join(list_itens)} sem unidades suficientes em estoque.")
     
+        return pedido
+       
+            
     def to_representation(self, instance):
         user = self.context.get('request').user
         resume_request = self.context.get('resume_request', False)
