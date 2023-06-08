@@ -1,4 +1,4 @@
-from django.shortcuts import render
+from django.http import Http404
 from pedidos.models import Pedido
 from pedidos.serializers import PedidoSerializer
 from rest_framework import permissions, status
@@ -15,7 +15,8 @@ class PedidoGeneral(APIView):
             pedidos = Pedido.objects.filter(usuario= request.user)
         else:
             pedidos = Pedido.objects.all()
-        serializer = PedidoSerializer(pedidos, many=True, context={'request': request})
+        context={'request': request, 'resume_request': True}
+        serializer = PedidoSerializer(pedidos, many=True, context=context)
         return Response(serializer.data)
 
     def post(self, request):
@@ -29,3 +30,12 @@ class PedidoGeneral(APIView):
 class PedidoDetail(APIView):
 
     permission_classes = [permissions.IsAuthenticated]
+
+    def get(self, request, codigo_pedido):
+        try:
+            pedido = Pedido.objects.get(codigo_pedido=codigo_pedido)
+            serializer = PedidoSerializer(pedido, context={'request': request})
+            return Response(serializer.data)
+        except Pedido.DoesNotExist:
+            raise Http404
+            

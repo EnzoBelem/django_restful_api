@@ -60,9 +60,15 @@ class PedidoSerializer(serializers.ModelSerializer):
     
     def to_representation(self, instance):
         user = self.context.get('request').user
+        resume_request = self.context.get('resume_request', False)
         fields = super().to_representation(instance)
+
         if user.groups.filter(name='Cliente').exists():
             fields.pop('id')
-
+            fields.pop('usuario')
+        
+        if resume_request:
+            fields.pop('itens')
+            
         return fields
     
