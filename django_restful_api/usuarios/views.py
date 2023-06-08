@@ -9,7 +9,7 @@ from rest_framework.response import Response
 from rest_framework.views import APIView
 from usuarios.permissions import GroupsPermissionsForUserManipulation
 from usuarios.serializers import (UserCreateSerializer, UserSerializer,
-                                  UserUpdateSerializer)
+                                  UserSignUpSerializer, UserUpdateSerializer)
 from usuarios.utils import UserGroupVerify
 
 
@@ -23,6 +23,20 @@ class UserAuthToken(ObtainAuthToken):
         usuario = serializer.validated_data['user']
         token, created = Token.objects.get_or_create(user=usuario)
         return Response({'token': token.key})
+
+
+class UserClienteSignUp(APIView):
+    """
+    API Endpoint - Criacao de clientes.
+    """
+    permission_classes = [permissions.AllowAny]
+
+    def post(self, request):
+        serializer = UserSignUpSerializer(data=request.data)
+        if serializer.is_valid():
+            serializer.save()
+            return Response(serializer.data, status=status.HTTP_201_CREATED)
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 
 class UserGeneral(APIView):
