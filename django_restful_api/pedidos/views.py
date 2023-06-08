@@ -7,7 +7,9 @@ from rest_framework.views import APIView
 
 
 class PedidoGeneral(APIView):
-
+    """
+    API Endpoint - listagem/criação de pedidos.
+    """
     permission_classes = [permissions.IsAuthenticated]
 
     def get(self, request):
@@ -28,7 +30,9 @@ class PedidoGeneral(APIView):
     
 
 class PedidoDetail(APIView):
-
+    """
+    API Endpoint - requisição de dados completos para um pedido especifico.
+    """
     permission_classes = [permissions.IsAuthenticated]
 
     def get(self, request, codigo_pedido):

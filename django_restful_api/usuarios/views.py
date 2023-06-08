@@ -1,5 +1,7 @@
 from django.contrib.auth.models import User
 from django.http import Http404
+from pedidos.models import Pedido
+from pedidos.serializers import PedidoSerializer
 from rest_framework import permissions, status
 from rest_framework.authtoken.models import Token
 from rest_framework.authtoken.views import ObtainAuthToken
@@ -98,3 +100,21 @@ class UserDetail(APIView):
         usuario = self._get_user(username)
         usuario.delete()
         return Response(status=status.HTTP_204_NO_CONTENT)
+    
+
+class UserPedidos(APIView):
+    """
+    API Endpoint - Listagem dos pedidos de um usuario especifico.
+    """
+    permission_classes = [permissions.IsAuthenticated]
+
+    def get(self, request, username):
+        try:
+            usuario = User.objects.get(username=username)
+            pedidos = Pedido.objects.filter(usuario= usuario)
+            context= {'request': request, 'resume_request': True}
+            serializer = PedidoSerializer(pedidos, many=True, context= context)
+            return Response(serializer.data)
+        except User.DoesNotExist:
+            raise Http404
+
