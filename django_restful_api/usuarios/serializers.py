@@ -16,6 +16,38 @@ class UserSerializer(serializers.ModelSerializer):
         fields = ['id', 'username', 'first_name', 'last_name', 'email', 'groups']
 
 
+class UserSignUpSerializer(serializers.ModelSerializer):
+    password = serializers.CharField(write_only=True)
+    email = serializers.CharField(required= True)
+    first_name = serializers.CharField(required= True)
+    last_name = serializers.CharField(required= True)
+
+    class Meta:
+        model = User
+        fields = ['username', 'password', 'first_name', 'last_name', 'email']
+
+    def validate_username(self, username):
+        if User.objects.filter(username=username).exists():
+            raise serializers.ValidationError("Este username não está disponivel.")
+        return username
+
+    def create(self, validated_data):
+        try:
+            username = validated_data['username']
+        except serializers.ValidationError as e:
+            raise serializers.ValidationError(e.detail)
+
+        user = User.objects.create_user(
+            username= username,
+            password=validated_data['password'],
+            email=validated_data['email'],
+            first_name=validated_data['first_name'],
+            last_name=validated_data['last_name'],
+        )
+        user.groups.set(Group.objects.filter(name='Cliente'))
+        return user
+
+
 class UserCreateSerializer(serializers.ModelSerializer):
     password = serializers.CharField(write_only=True, required=True)
     group = serializers.CharField(write_only=True, required=True)
@@ -27,6 +59,11 @@ class UserCreateSerializer(serializers.ModelSerializer):
         model = User
         fields = ['id', 'username', 'password', 'first_name', 'last_name', 'email', 'group']
 
+    def validate_username(self, username):
+        if User.objects.filter(username=username).exists():
+            raise serializers.ValidationError("Este username não está disponivel.")
+        return username
+
     def validate_group(self, group_name):
         group = Group.objects.filter(name=group_name)
         if not group.exists():
@@ -36,10 +73,12 @@ class UserCreateSerializer(serializers.ModelSerializer):
     def create(self, validated_data):
         try:
             groups_data = validated_data['group']
+            username = validated_data['username']
         except serializers.ValidationError as e:
             raise serializers.ValidationError(e.detail)
+        
         user = User.objects.create_user(
-            username=validated_data['username'],
+            username= username,
             password=validated_data['password'],
             email=validated_data['email'],
             first_name=validated_data['first_name'],
