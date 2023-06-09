@@ -51,7 +51,7 @@ class UserGeneral(APIView):
         * Cliente: acesso somente a listagem parcial.
         """
         if UserGroupVerify.is_cliente(request.user):
-            serializer = UserSerializer(request.user)
+            serializer = UserSignUpSerializer(request.user)
         else:
             query_set = User.objects.all()
             serializer = UserSerializer(query_set, many=True)
@@ -93,7 +93,10 @@ class UserDetail(APIView):
         GET - Listagem de dados de usuario especifico.
         """
         usuario = self._get_user(username)
-        serializer = UserSerializer(usuario)
+        if UserGroupVerify.is_cliente(request.user):
+            serializer = UserSignUpSerializer(usuario)
+        else:
+            serializer = UserSerializer(usuario)
         return Response(serializer.data)
 
     def patch(self, request, username):

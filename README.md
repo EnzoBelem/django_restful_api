@@ -50,7 +50,14 @@ Com o seu ambiente virtual executando vá para a pasta do projeto Django e execu
 ```
 python manage.py migrate
 ```
-### 4 - Executar o projeto
+### 4 - Criar um super usuário:
+Esta API trabalha com requisições com autenticação, por este motivo caso você não tenha um usuário criado a maioria das rotas da APi será bloqueada. Você pode contornar este problema criando um super usuário diretamente pelo terminal/bash.<br>
+Execute o seguinte comando:
+```
+python manage.py createsuperuser
+```
+Em seguida você irá preencher alguns campos básicos para criação do seu primeiro usuário.
+### 5 - Executar o projeto
 Nessa etapa todas as configurações já foram feitas e basta executar o projeto usando o seguinte comando:
 ```
 python manage.py runserver

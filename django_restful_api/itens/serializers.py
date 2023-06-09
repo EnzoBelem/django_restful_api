@@ -18,6 +18,7 @@ class ItemSerializer(serializers.ModelSerializer):
 
 
 class ItemUpdateSerializer(serializers.ModelSerializer):
+    descricao = serializers.CharField(required=False)
     codigo_item = serializers.CharField(required=False)
     nome = serializers.CharField(required=False)
     preco = serializers.FloatField(required=False)
