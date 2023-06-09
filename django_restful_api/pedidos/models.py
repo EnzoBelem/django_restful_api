@@ -13,7 +13,7 @@ def _generate_random_code():
 
 
 class Pedido(models.Model):
-    codigo_pedido = models.CharField(max_length= 8, unique=True, editable=False, default= _generate_random_code())
+    codigo_pedido = models.CharField(max_length= 8, unique=True, editable=False, default= _generate_random_code)
     usuario = models.ForeignKey(User, on_delete=models.PROTECT)
     data_criacao = models.DateTimeField(auto_now_add=True)
 
