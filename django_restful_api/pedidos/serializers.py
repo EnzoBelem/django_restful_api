@@ -45,11 +45,11 @@ class PedidoSerializer(serializers.ModelSerializer):
         itens_data = validated_data.pop('itenspedido')
 
         try:
-            usuario = validated_data.get('usuario', user)
+            user = validated_data.get('usuario', user)
         except serializers.ValidationError as e:
             raise serializers.ValidationError(e.detail)
 
-        pedido = Pedido.objects.create(usuario=usuario)
+        pedido = Pedido.objects.create(usuario=user)
         flag_error = False
         list_itens = []
 
