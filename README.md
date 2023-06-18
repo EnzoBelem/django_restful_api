@@ -2,6 +2,32 @@
 Projeto feito para o desafio da Medclub de criar uma API RESTful que gerencie usuários, pedidos e itens.
 
 ## Como configurar e executar este projeto em sua máquina
+## Executando via Docker
+### 1 - Criar e executar a imagem, container Docker
+Caso queria executar esse projeto usando Docker você precisará seguir apenas alguns passos simples.<br>
+Construindo a imagem com base no arquivo Dockerfile disponivel nos arquivos do projeto.
+```
+docker build -t django_restful_api .
+```
+Criando o contêiner com base na imagem 'django_restful_api'.
+```
+docker create --name django_restful_api_container -p 8000:8000 django_restful_api
+```
+Inicializando o container docker.
+```
+docker start <id_container>
+```
+Com isso você executou facilmente este projeto.<br>
+Lembrando que ainda será interessante criar um super usuário para ter acesso a todas as funcionalidades e rotas da API.
+### 2 - Criar super usuário via bash do container Docker
+Para acessa o bash do seu container docker e criar seu primeiro super usuário execute os seguintes comandos:
+```
+docker exec -it <id_container> bash
+cd django_restful_api/
+python manage.py createsuperuser
+```
+Em seguida você irá preencher alguns campos básicos para criação do seu primeiro usuário.
+## Executando diretamente na máquina local
 ### 1 - Clonar o projeto
 Usando o terminal/bash da sua preferência execute o seguinte comando git:
 ```
