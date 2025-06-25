@@ -1,5 +1,5 @@
 # django_restful_api
-Projeto feito para o desafio da Medclub de criar uma API RESTful que gerencie usuários, pedidos e itens.
+Projeto de uma API RESTful simples que gerencie usuários, pedidos e itens.
 
 ## Como configurar e executar este projeto em sua máquina
 ## Executando via Docker
